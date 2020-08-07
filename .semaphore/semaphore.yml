@@ -1,5 +1,5 @@
 version: v1.0
-name: Initial Pipeline
+name: Python
 agent:
   machine:
     type: e1-standard-2
@@ -16,7 +16,7 @@ blocks:
             - cache restore
             - pip install --cache-dir .pip_cache -r requirements.txt
             - cache store
-  - name: Test
+  - name: Tests
     task:
       prologue:
         commands:
@@ -25,20 +25,20 @@ blocks:
           - cache restore
           - pip install --cache-dir .pip_cache -r requirements.txt
       jobs:
-        - name: Unit tests
+        - name: Unit Tests
           commands:
             - cd martor_demo
             - python manage.py makemigrations
             - python manage.py migrate
             - python manage.py test
+        - name: Style Enforce
+          commands:
+            - pip install flake8
+            - flake8 martor_demo/ --max-line-length=127
         - name: Checklist
           commands:
             - cd martor_demo
             - python manage.py check --deploy
-        - name: Style check
-          commands:
-            - pip install flake8
-            - flake8 martor_demo/ --max-line-length=127
 promotions:
   - name: Dockerize
     pipeline_file: pipeline_2.yml
